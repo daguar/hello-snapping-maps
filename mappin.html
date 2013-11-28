@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
+  <script src="js/jquery-1.10.2.min.js"></script>
+  <script src='http://api.tiles.mapbox.com/mapbox.js/v1.5.0/mapbox.js'></script>
+  <script src="js/Polyline.encoded.js"></script>
+  <link href='http://api.tiles.mapbox.com/mapbox.js/v1.5.0/mapbox.css' rel='stylesheet' />
+  <!--[if lte IE 8]>
+    <link href='http://api.tiles.mapbox.com/mapbox.js/v1.3.1/mapbox.ie.css' rel='stylesheet' >
+  <![endif]-->
+  <style>
+    body { margin:0; padding:20; }
+    #map { position:absolute; top:0; bottom:0; width:100%; }
+  </style>
+</head>
+<body>
+<div id='map'></div>
+
+<div id="slider"></div>
+
+<script type='text/javascript'>
+
+	// Lots of this taken from Leaflet choropleth tutorial
+	// http://leafletjs.com/examples/choropleth.html
+
+	var map = L.mapbox.map('map', 'codeforamerica.map-e4tteqfz');
+	var lastPoint;
+
+    function placeMarkerAt(mapPoint) {
+    	console.log([mapPoint.latlng.lat,mapPoint.latlng.lng]);
+		L.mapbox.markerLayer({
+		    // this feature is in the GeoJSON format: see geojson.org
+		    // for the full specification
+		    type: 'Feature',
+		    geometry: {
+		        type: 'Point',
+		        // coordinates here are in longitude, latitude order because
+		        // x, y is the standard for GeoJSON and many formats
+		        coordinates: [mapPoint.latlng.lng,mapPoint.latlng.lat]
+		    },
+		    properties: {
+		        title: 'A Single Marker',
+		        description: 'Just one of me',
+		        // one can customize markers by adding simplestyle properties
+		        // http://mapbox.com/developers/simplestyle/
+		        'marker-size': 'large',
+		        'marker-color': '#f0a'
+		    }
+		}).addTo(map);
+	}
+
+	function routeAndDrawBetweenTwoPoints(firstPoint, secondPoint) {
+		requestUrl = "http://router.project-osrm.org/viaroute?loc=" + firstPoint.latlng.lat + "," + firstPoint.latlng.lng + "&loc=" + secondPoint.latlng.lat + "," + secondPoint.latlng.lng;
+		$.getJSON(requestUrl, function(routeData) {
+			console.log(routeData);
+			var polylineToDraw = L.PolylineUtil.decode(routeData.route_geometry, 6);
+			L.polyline(polylineToDraw, {color: 'red'}).addTo(map);
+		});
+	}
+
+	function setLastPointOrConnectPoints(newPoint) {
+		if (lastPoint === undefined) {
+			lastPoint = newPoint;
+		}
+		else {
+			console.log(newPoint);
+			routeAndDrawBetweenTwoPoints(lastPoint, newPoint);
+			lastPoint = newPoint;
+		}
+	}
+
+    map.on('click', setLastPointOrConnectPoints);
+
+
+</script>
+</body>
+</html>
+
