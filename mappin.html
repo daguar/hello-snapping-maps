@@ -21,34 +21,8 @@
 
 <script type='text/javascript'>
 
-	// Lots of this taken from Leaflet choropleth tutorial
-	// http://leafletjs.com/examples/choropleth.html
-
 	var map = L.mapbox.map('map', 'codeforamerica.map-e4tteqfz');
 	var lastPoint;
-
-    function placeMarkerAt(mapPoint) {
-    	console.log([mapPoint.latlng.lat,mapPoint.latlng.lng]);
-		L.mapbox.markerLayer({
-		    // this feature is in the GeoJSON format: see geojson.org
-		    // for the full specification
-		    type: 'Feature',
-		    geometry: {
-		        type: 'Point',
-		        // coordinates here are in longitude, latitude order because
-		        // x, y is the standard for GeoJSON and many formats
-		        coordinates: [mapPoint.latlng.lng,mapPoint.latlng.lat]
-		    },
-		    properties: {
-		        title: 'A Single Marker',
-		        description: 'Just one of me',
-		        // one can customize markers by adding simplestyle properties
-		        // http://mapbox.com/developers/simplestyle/
-		        'marker-size': 'large',
-		        'marker-color': '#f0a'
-		    }
-		}).addTo(map);
-	}
 
 	function routeAndDrawBetweenTwoPoints(firstPoint, secondPoint) {
 		requestUrl = "http://router.project-osrm.org/viaroute?loc=" + firstPoint.latlng.lat + "," + firstPoint.latlng.lng + "&loc=" + secondPoint.latlng.lat + "," + secondPoint.latlng.lng;
@@ -72,6 +46,29 @@
 
     map.on('click', setLastPointOrConnectPoints);
 
+    // Not used presently
+    function placeMarkerAt(mapPoint) {
+    	console.log([mapPoint.latlng.lat,mapPoint.latlng.lng]);
+		L.mapbox.markerLayer({
+		    // this feature is in the GeoJSON format: see geojson.org
+		    // for the full specification
+		    type: 'Feature',
+		    geometry: {
+		        type: 'Point',
+		        // coordinates here are in longitude, latitude order because
+		        // x, y is the standard for GeoJSON and many formats
+		        coordinates: [mapPoint.latlng.lng,mapPoint.latlng.lat]
+		    },
+		    properties: {
+		        title: 'A Single Marker',
+		        description: 'Just one of me',
+		        // one can customize markers by adding simplestyle properties
+		        // http://mapbox.com/developers/simplestyle/
+		        'marker-size': 'large',
+		        'marker-color': '#f0a'
+		    }
+		}).addTo(map);
+	}
 
 </script>
 </body>
