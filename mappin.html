@@ -21,24 +21,36 @@
 
 <script type='text/javascript'>
 
-	var map = L.mapbox.map('map', 'codeforamerica.map-e4tteqfz');
+	var map = L.mapbox.map('map', 'codeforamerica.map-e4tteqfz').setView([37.764604, -122.433135], 15);
 	var lastPoint;
+	var mostRecentPolylineDrawn;
 
 	function routeAndDrawBetweenTwoPoints(firstPoint, secondPoint) {
 		requestUrl = "http://router.project-osrm.org/viaroute?loc=" + firstPoint.latlng.lat + "," + firstPoint.latlng.lng + "&loc=" + secondPoint.latlng.lat + "," + secondPoint.latlng.lng;
 		$.getJSON(requestUrl, function(routeData) {
-			console.log(routeData);
-			var polylineToDraw = L.PolylineUtil.decode(routeData.route_geometry, 6);
-			L.polyline(polylineToDraw, {color: 'red'}).addTo(map);
+			polyLineLatLongsToDraw = L.PolylineUtil.decode(routeData.route_geometry, 6);
+			//mostRecentPolylineDrawn = L.polyline(polyLineLatLongsToDraw, {color: 'red'}).addTo(map);
+			mostRecentPolylineDrawn = L.polyline(polyLineLatLongsToDraw, {color: 'red'});
+			map.addLayer(mostRecentPolylineDrawn);
+			mostRecentPolylineDrawn.on('mousedown', function(e) {
+				map.dragging.disable();
+				console.log("sup");
+			});
 		});
 	}
+
+	// On click and hold over polyline:
+	//		Save lat/long ends of polyline as [head, tail]
+	//		Wait til release
+	//		On release at new_lat_long
+	//			Delete old polyline
+	//			Draw 2 new polylines (head to new_lat_long, and new_lat_long to tail)
 
 	function setLastPointOrConnectPoints(newPoint) {
 		if (lastPoint === undefined) {
 			lastPoint = newPoint;
 		}
 		else {
-			console.log(newPoint);
 			routeAndDrawBetweenTwoPoints(lastPoint, newPoint);
 			lastPoint = newPoint;
 		}
@@ -46,9 +58,16 @@
 
     map.on('click', setLastPointOrConnectPoints);
 
+
+    // Not used presently
+    function generateRandomColor() {
+    	color = '#'+Math.floor(Math.random()*16777215).toString(16);
+    	return color;
+    }
+
     // Not used presently
     function placeMarkerAt(mapPoint) {
-    	console.log([mapPoint.latlng.lat,mapPoint.latlng.lng]);
+    	//console.log([mapPoint.latlng.lat,mapPoint.latlng.lng]);
 		L.mapbox.markerLayer({
 		    // this feature is in the GeoJSON format: see geojson.org
 		    // for the full specification
